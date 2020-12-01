@@ -6,13 +6,49 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints"
+        android:padding="@dimen/layout_padding">
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/filterNumberSwitch"
+            android:text="@string/filterNumbers"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/showSelectContactButton"
+            android:text="@string/showSelectContact"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/need_password" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:id="@+id/passwordEdit"
+            android:drawableRight="@drawable/ic_baseline_visibility_24"
+            android:inputType="textVisiblePassword" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send response state"
+            android:id="@+id/responseSwitch"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/process_volume_control"
+            android:id="@+id/volumeControlSwitch"
+            
+            android:contentDescription="@string/this_switch" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

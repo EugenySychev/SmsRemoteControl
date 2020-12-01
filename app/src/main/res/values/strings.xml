@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SmsRemoteControl</string>
+    <string name="filterNumbers">Filter by phone numbers</string>
+    <string name="showSelectContact">Show/select contact</string>
+    <string name="need_password">Need password</string>
+    <string name="password">password</string>
+    <string name="this_switch">This switch enabling of processing volume controll command by setvolume ### media/ring, where is ### is a number from 0 to 100 of volume.</string>
+    <string name="process_volume_control">Process volume control</string>
 </resources>
