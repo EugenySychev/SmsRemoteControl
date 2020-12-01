@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,44 +9,68 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:ignore="MissingConstraints"
-        android:padding="@dimen/layout_padding">
-        <androidx.appcompat.widget.SwitchCompat
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/filterNumberSwitch"
-            android:text="@string/filterNumbers"/>
-        <androidx.appcompat.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/showSelectContactButton"
-            android:text="@string/showSelectContact"/>
+        android:padding="@dimen/layout_padding"
+        tools:ignore="MissingConstraints">
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/filterNumberSwitch"
+            style="@style/SwitchTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/filterNumbers" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/showSelectContactButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/showSelectContact" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            style="@style/SwitchTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/need_password" />
+
         <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/passwordEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/ic_baseline_visibility_24"
             android:hint="@string/password"
-            android:id="@+id/passwordEdit"
-            android:drawableRight="@drawable/ic_baseline_visibility_24"
             android:inputType="textVisiblePassword" />
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/responseSwitch"
+            style="@style/SwitchTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send response state"
-            android:id="@+id/responseSwitch"/>
+            android:text="@string/send_response_status" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/process_volume_control"
-            android:id="@+id/volumeControlSwitch"
-            
-            android:contentDescription="@string/this_switch" />
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/volumeControlSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:id="@+id/handleVolContrSwitchTitle"
+                style="@style/SwitchTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/process_volume_control" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/handleVolContrSwitchTitle"
+                android:layout_toStartOf="@id/volumeControlSwitch"
+                android:text="@string/this_switch" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
