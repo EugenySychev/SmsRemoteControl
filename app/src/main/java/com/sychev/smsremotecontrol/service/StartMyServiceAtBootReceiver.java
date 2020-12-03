@@ -5,9 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Messenger;
-import android.util.Log;
+import android.widget.Toast;
 
 public class StartMyServiceAtBootReceiver extends BroadcastReceiver {
     Messenger messenger = null;
@@ -27,7 +28,12 @@ public class StartMyServiceAtBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            context.startForegroundService(new Intent(context, CallSilentPhoneService.class));
+            Toast.makeText(context, "Received reboot, try to start service", Toast.LENGTH_LONG).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(new Intent(context, SmsHandlingService.class));
+            } else {
+                context.startService(new Intent(context, SmsHandlingService.class));
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ public class SmsReceiver extends BroadcastReceiver {
             for (SmsMessage message : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                 String from = message.getOriginatingAddress();
                 String text = message.getMessageBody();
+
                 if (handler != null)
                     handler.processIncomingSms(from, text);
             }
