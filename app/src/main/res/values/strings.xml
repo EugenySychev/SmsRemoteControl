@@ -8,4 +8,5 @@
     <string name="process_volume_control">Process volume control</string>
     <string name="send_response_status">Send response status</string>
     <string name="check_service_state">Check service state</string>
+    <string name="increase">Add</string>
 </resources>

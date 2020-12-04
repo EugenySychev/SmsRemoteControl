@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="@dimen/layout_padding"
+        android:animateLayoutChanges="true"
         tools:ignore="MissingConstraints">
 
         <androidx.appcompat.widget.SwitchCompat
@@ -29,7 +30,8 @@
             style="@style/SwitchTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/need_password" />
+            android:text="@string/need_password"
+            android:id="@+id/needPasswordSwitch"/>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/passwordEdit"
@@ -58,7 +60,8 @@
 
             <TextView
                 android:id="@+id/handleVolContrSwitchTitle"
-                style="@style/SwitchTitle"
+                android:textSize="@dimen/abc_text_size_subhead_material"
+                android:textColor="?android:textColorPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/process_volume_control" />
@@ -66,6 +69,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="11sp"
                 android:layout_below="@+id/handleVolContrSwitchTitle"
                 android:layout_toStartOf="@id/volumeControlSwitch"
                 android:text="@string/this_switch" />
