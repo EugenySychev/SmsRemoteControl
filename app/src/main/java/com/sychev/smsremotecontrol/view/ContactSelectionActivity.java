@@ -82,7 +82,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Conta
             Log.d(TAG, "Uri is " + uri.toString());
             if (cursor.moveToFirst()) {
                 int phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-                int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
 
                 phoneNo = cursor.getString(phoneIndex);
                 SettingsStore.getInstance().addPhoneNumber(phoneNo);

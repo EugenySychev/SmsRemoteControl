@@ -18,7 +18,7 @@ public class SettingsStore {
     private static SettingsStore mInstance;
     private SharedPreferences mPreferences = null;
     private int phoneNumbersCount;
-    private static List<String> phoneNumbers = new ArrayList<>();
+    private static final List<String> phoneNumbers = new ArrayList<>();
 
     public static synchronized SettingsStore getInstance() {
         if (mInstance == null)
@@ -29,13 +29,7 @@ public class SettingsStore {
     public void init(Context context) {
         mPreferences = context.getSharedPreferences(APP_NAME, 0);
 
-        phoneNumbersCount = mPreferences.getInt(KEY_PHONE_COUNT, 0);
-        for (int i = 0; i < phoneNumbersCount; i++)
-        {
-            String loadedNumber = mPreferences.getString(KEY_PHONE_NUMBER+i, "");
-            if (loadedNumber != null)
-                phoneNumbers.add(mPreferences.getString(KEY_PHONE_NUMBER+i, ""));
-        }
+        loadPhones();
     }
 
     public boolean isInitialized() {
@@ -62,17 +56,48 @@ public class SettingsStore {
     }
 
     public void addPhoneNumber(String number) {
-        mPreferences.edit().putString(KEY_PHONE_NUMBER + phoneNumbersCount, number).apply();
-        phoneNumbersCount++;
-        phoneNumbers.add(number);
+        if (!phoneNumbers.contains(number)) {
+            phoneNumbers.add(number);
+            resetPhones();
+            storePhones();
+        }
     }
 
     public void deletePhoneNumber(String item) {
-        int index = phoneNumbers.indexOf(item);
-        if (index >= 0) {
+        if (phoneNumbers.contains(item)) {
             phoneNumbers.remove(item);
-            mPreferences.edit().remove(KEY_PHONE_NUMBER + index).apply();
+            resetPhones();
+            storePhones();
         }
+    }
+
+    private void loadPhones() {
+        phoneNumbersCount = mPreferences.getInt(KEY_PHONE_COUNT, 0);
+        phoneNumbers.clear();
+        for (int i = 0; i < phoneNumbersCount; i++)
+        {
+            String loadedNumber = mPreferences.getString(KEY_PHONE_NUMBER+i, "");
+            if (loadedNumber != null && !loadedNumber.isEmpty())
+                phoneNumbers.add(mPreferences.getString(KEY_PHONE_NUMBER+i, ""));
+        }
+    }
+
+    private void resetPhones() {
+        phoneNumbersCount = mPreferences.getInt(KEY_PHONE_COUNT, 0);
+        SharedPreferences.Editor editor = mPreferences.edit();
+        for (int i = 0; i < phoneNumbersCount; i++)
+            editor.remove(KEY_PHONE_NUMBER + i);
+        editor.putInt(KEY_PHONE_COUNT, 0);
+        editor.apply();
+    }
+
+    private void storePhones() {
+        phoneNumbersCount = phoneNumbers.size();
+        SharedPreferences.Editor editor = mPreferences.edit();
+        for (int i = 0; i < phoneNumbersCount; i++)
+            editor.putString(KEY_PHONE_NUMBER + i, phoneNumbers.get(i));
+        editor.putInt(KEY_PHONE_COUNT, phoneNumbersCount);
+        editor.apply();
     }
 
     public void setPasswordEnabled(boolean checked) {

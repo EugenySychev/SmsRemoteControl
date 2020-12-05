@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.sychev.smsremotecontrol.MainActivity;
 import com.sychev.smsremotecontrol.R;
@@ -75,7 +76,7 @@ public class SmsHandlingService extends Service  implements SmsReceiver.SmsHandl
                 .build();
         startForeground(1, notification);
         started = true;
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     @Override
@@ -91,8 +92,19 @@ public class SmsHandlingService extends Service  implements SmsReceiver.SmsHandl
     @Override
     public void processIncomingSms(String number, String sms) {
         Toast.makeText(this, "Received sms ", Toast.LENGTH_LONG).show();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                0, notificationIntent, 0);
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Received message from " + number)
+                .setContentText(sms)
+                .setSmallIcon(R.drawable.ic_baseline_visibility_24)
+                .setContentIntent(pendingIntent)
+                .build();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
-
+// notificationId is a unique int for each notification that you must define
+        notificationManager.notify(0, notification);
     }
 
     private void createNotificationChannel() {
