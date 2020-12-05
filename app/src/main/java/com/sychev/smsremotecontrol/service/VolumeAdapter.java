@@ -12,7 +12,6 @@ public class VolumeAdapter {
     private static final String TAG = "AUDIO";
     private final AudioManager audioManager;
     private final MediaPlayer playerRing;
-    private int volumeLevel;
 
     public VolumeAdapter(Context context) {
         playerRing = MediaPlayer.create(context, Settings.System.DEFAULT_RINGTONE_URI);

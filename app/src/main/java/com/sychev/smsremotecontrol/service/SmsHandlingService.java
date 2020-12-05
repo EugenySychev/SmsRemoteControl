@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.provider.Telephony;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,8 +33,11 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
     public static final int RELOAD_SETTINGS = 1;
     private static final String TAG = "SmsService";
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
+    private static final int NUMBER_WORD_SMS_COMMAND = 3;
+    private static final String SET_VOLUME_COMMAND = "setvolume";
+    private VolumeAdapter volumeAdapter;
     private boolean started = false;
-
+    private SmsReceiver smsReceiver;
     private final IBinder mBinder = new SmsServiceBinder();
 
     public boolean getIsRunning() {
@@ -64,9 +68,9 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
 
         loadSettings();
 
-        SmsReceiver receiver = new SmsReceiver();
-        receiver.setSmsHandler(this);
-        registerReceiver(receiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
+        smsReceiver = new SmsReceiver();
+        smsReceiver.setSmsHandler(this);
+        registerReceiver(smsReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
         Toast.makeText(this, "Service started", Toast.LENGTH_LONG).show();
         Log.d(TAG, "Service started");
 
@@ -82,12 +86,16 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
                 .setContentIntent(pendingIntent)
                 .build();
         startForeground(1, notification);
+
+        volumeAdapter = new VolumeAdapter(this);
         started = true;
+
         return START_STICKY;
     }
 
     public void onStop() {
         started = false;
+        unregisterReceiver(smsReceiver);
     }
 
     @Override
@@ -103,19 +111,46 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
     @Override
     public void processIncomingSms(String number, String sms) {
         Toast.makeText(this, "Received sms ", Toast.LENGTH_LONG).show();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Received message from " + number)
-                .setContentText(sms)
-                .setSmallIcon(R.drawable.ic_baseline_visibility_24)
-                .setContentIntent(pendingIntent)
-                .build();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//        if (checkPasswordNeeded(sms) && checkFilterNumber(number)) {
+//            String[] strings = sms.split(" ");
+//            int startInd = SettingsStore.getInstance().getPasswordEnabled() ? 1 : 0;
+//            if (strings.length == NUMBER_WORD_SMS_COMMAND + startInd) {
+//                String command = strings[startInd]; // dropped password if needed
+//                String type = strings[startInd + 1];
+//                int value = Integer.parseInt(strings[startInd + 2]);
+//                if (SettingsStore.getInstance().getVolumeControlEnabled() &&
+//                        command.equalsIgnoreCase(SET_VOLUME_COMMAND) &&
+//                        volumeAdapter != null) {
+//                    if (type.equalsIgnoreCase("ring") ||
+//                            type.equalsIgnoreCase("media") ||
+//                            type.equalsIgnoreCase("alarm")) {
+//                        volumeAdapter.setVolume(value, type);
+//                    }
+//
+//                }
+//            }
+//        }
 
-// notificationId is a unique int for each notification that you must define
-        notificationManager.notify(0, notification);
+    }
+
+    private boolean checkFilterNumber(String number) {
+        if (SettingsStore.getInstance().getIsFilterByNumber()) {
+            for (String numberInList : SettingsStore.getInstance().getPhoneNumbers()) {
+                if (PhoneNumberUtils.compare(number, numberInList)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkPasswordNeeded(String sms) {
+        if (SettingsStore.getInstance().getPasswordEnabled()) {
+            String pass = SettingsStore.getInstance().getPassword();
+            return sms.substring(0, pass.length()).equals(pass);
+        }
+        return true;
     }
 
     private void createNotificationChannel() {
