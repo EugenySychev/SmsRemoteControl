@@ -15,10 +15,15 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.sychev.smsremotecontrol.data.SettingsStore;
 import com.sychev.smsremotecontrol.service.SmsHandlingService;
 import com.sychev.smsremotecontrol.view.ContactSelectionActivity;
@@ -26,6 +31,7 @@ import com.sychev.smsremotecontrol.view.ContactSelectionActivity;
 public class MainActivity extends AppCompatActivity {
 
 
+    private static final String TAG = "Main";
     private SmsHandlingService mService;
     private boolean mBound;
     private ServiceConnection connection = new ServiceConnection() {
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SmsHandlingService.class);
         int flags = Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT;
         bindService(intent, connection, flags);
+
         AppCompatButton buttonFilterContactActivity = findViewById(R.id.showSelectContactButton);
         buttonFilterContactActivity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,19 +82,28 @@ public class MainActivity extends AppCompatActivity {
         buttonFilterContactActivity.setVisibility(switchFilterNumbers.isChecked() ? View.VISIBLE : View.GONE);
 
 
-        AppCompatEditText passwordEdit = findViewById(R.id.passwordEdit);
+        TextInputEditText passwordEdit = findViewById(R.id.passwordEdit);
+        AppCompatButton savePasswordButton = findViewById(R.id.savePasswordButton);
+        savePasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SettingsStore.getInstance().setPassword(passwordEdit.getText().toString());
+            }
+        });
+        passwordEdit.setText(SettingsStore.getInstance().getPassword());
 
+        TextInputLayout passLayoutt = findViewById(R.id.etPasswordLayout);
         SwitchCompat switchPasswordRequired = findViewById(R.id.needPasswordSwitch);
         switchPasswordRequired.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                passwordEdit.setVisibility(switchPasswordRequired.isChecked() ? View.VISIBLE : View.GONE);
+                passLayoutt.setVisibility(switchPasswordRequired.isChecked() ? View.VISIBLE : View.GONE);
                 SettingsStore.getInstance().setPasswordEnabled(switchPasswordRequired.isChecked());
             }
         });
 
         switchPasswordRequired.setChecked(SettingsStore.getInstance().getPasswordEnabled());
-        passwordEdit.setVisibility(switchPasswordRequired.isChecked() ? View.VISIBLE : View.GONE);
+        passLayoutt.setVisibility(switchPasswordRequired.isChecked() ? View.VISIBLE : View.GONE);
 
         TextView serviceStateTextView = findViewById(R.id.serviceStateTextView);
         AppCompatButton button = findViewById(R.id.checkServiceStateButton);
@@ -104,6 +121,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        SwitchCompat sendResponseSwitch = findViewById(R.id.responseSwitch);
+        sendResponseSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsStore.getInstance().setResponseEnabled(isChecked);
+            }
+        });
+        sendResponseSwitch.setChecked(SettingsStore.getInstance().getResponseEnabled());
     }
 
     @Override

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -33,13 +34,26 @@
             android:text="@string/need_password"
             android:id="@+id/needPasswordSwitch"/>
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/passwordEdit"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/etPasswordLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/ic_baseline_visibility_24"
-            android:hint="@string/password"
-            android:inputType="textVisiblePassword" />
+            app:passwordToggleEnabled="true"
+            android:layout_marginBottom="@dimen/login_spacing_bottom">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_login_password_hint"
+                android:inputType="textPassword"
+                android:background="@color/design_default_color_background"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/savePasswordButton"
+                android:text="@string/save_password"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/responseSwitch"

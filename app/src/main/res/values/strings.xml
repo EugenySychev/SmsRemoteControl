@@ -9,4 +9,6 @@
     <string name="send_response_status">Send response status</string>
     <string name="check_service_state">Check service state</string>
     <string name="increase">Add</string>
+    <string name="fragment_login_password_hint">Enter password</string>
+    <string name="save_password">Save password</string>
 </resources>

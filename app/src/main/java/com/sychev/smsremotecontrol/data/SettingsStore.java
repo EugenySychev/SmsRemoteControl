@@ -2,10 +2,13 @@ package com.sychev.smsremotecontrol.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.Editable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static android.accounts.AccountManager.KEY_PASSWORD;
 
 public class SettingsStore {
 
@@ -14,6 +17,7 @@ public class SettingsStore {
     private static final String KEY_PASSWORD_ENABLED = "PasswordEnabled";
     private static final String KEY_PHONE_COUNT = "PhoneCount";
     private static final String KEY_PHONE_NUMBER = "PhoneNumber";
+    private static final String KEY_RESPONSE_ENABLED = "ResponseEnabled";
 
     private static SettingsStore mInstance;
     private SharedPreferences mPreferences = null;
@@ -102,5 +106,21 @@ public class SettingsStore {
 
     public void setPasswordEnabled(boolean checked) {
         mPreferences.edit().putBoolean(KEY_PASSWORD_ENABLED, checked).apply();
+    }
+
+    public void setPassword(String text) {
+        mPreferences.edit().putString(KEY_PASSWORD, text).apply();
+    }
+
+    public String getPassword() {
+        return mPreferences.getString(KEY_PASSWORD, "");
+    }
+
+    public void setResponseEnabled(boolean isChecked) {
+        mPreferences.edit().putBoolean(KEY_RESPONSE_ENABLED, isChecked).apply();
+    }
+
+    public boolean getResponseEnabled() {
+        return mPreferences.getBoolean(KEY_RESPONSE_ENABLED, false);
     }
 }
