@@ -52,7 +52,7 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
         return mBinder;
     }
 
-    private void reloadSettings() {
+    public void reloadSettings() {
         Log.d(TAG, "Reload settings");
     }
 
@@ -71,15 +71,14 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
         Log.d(TAG, "Service started");
 
 
-        String input = intent.getStringExtra("inputExtra");
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Foreground Service")
-                .setContentText(input)
-                .setSmallIcon(R.drawable.ic_baseline_visibility_24)
+                .setContentTitle(getResources().getString(R.string.notification_title))
+                .setContentText(getResources().getString(R.string.notification_service_started))
+                .setSmallIcon(R.drawable.ic_baseline_settings_remote_24)
                 .setContentIntent(pendingIntent)
                 .build();
         startForeground(1, notification);

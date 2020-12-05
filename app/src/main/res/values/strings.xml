@@ -11,4 +11,6 @@
     <string name="increase">Add</string>
     <string name="fragment_login_password_hint">Enter password</string>
     <string name="save_password">Save password</string>
+    <string name="notification_title">Sms Remote Controller</string>
+    <string name="notification_service_started">Service remote controller started</string>
 </resources>

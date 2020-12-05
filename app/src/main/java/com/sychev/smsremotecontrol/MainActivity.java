@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SwitchCompat sendResponseSwitch;
 
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -40,14 +41,20 @@ public class MainActivity extends AppCompatActivity {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             SmsHandlingService.SmsServiceBinder binder = (SmsHandlingService.SmsServiceBinder) service;
             mService = binder.getService();
+            if (!mService.getIsRunning() && mServiceShouldRun)
+                startForegroundService(new Intent(MainActivity.this, SmsHandlingService.class));
             mBound = true;
+            Toast.makeText(MainActivity.this, "service connected", Toast.LENGTH_LONG).show();
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+            Toast.makeText(MainActivity.this, "service disconnected", Toast.LENGTH_LONG).show();
         }
     };
+    private boolean mServiceShouldRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SettingsStore.getInstance().init(this);
+        mServiceShouldRun = SettingsStore.getInstance().getServiceEnabling();
 
         Intent intent = new Intent(this, SmsHandlingService.class);
         int flags = Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT;
@@ -113,10 +121,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     serviceStateTextView.setText("Something goes wrong" + (mService.getIsRunning() ? " started" : " stoped"));
                 }
-
-                if (!mService.getIsRunning())
-                    startForegroundService(intent);
-
             }
         });
 
@@ -138,9 +142,12 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsStore.getInstance().setVolumeControlEnabled(isChecked);
                 checkPermissionManifest(Manifest.permission.ACCESS_NOTIFICATION_POLICY);
+                if (mService != null)
+                    mService.reloadSettings();
             }
         });
         volumeControlSwitch.setChecked(SettingsStore.getInstance().getVolumeControlEnabled());
+
     }
 
     private void checkPermissionManifest(String permission) {
@@ -170,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-//        unbindService(connection);
+        unbindService(connection);
         mBound = false;
     }
 }

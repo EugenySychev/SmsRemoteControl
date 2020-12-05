@@ -131,4 +131,8 @@ public class SettingsStore {
     public void setVolumeControlEnabled(boolean isChecked) {
         mPreferences.edit().putBoolean(KEY_VOLUME_CONTROL, isChecked).apply();
     }
+
+    public boolean getServiceEnabling() {
+        return getVolumeControlEnabled();
+    }
 }
