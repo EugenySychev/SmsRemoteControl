@@ -18,6 +18,7 @@ public class SettingsStore {
     private static final String KEY_PHONE_COUNT = "PhoneCount";
     private static final String KEY_PHONE_NUMBER = "PhoneNumber";
     private static final String KEY_RESPONSE_ENABLED = "ResponseEnabled";
+    private static final String KEY_VOLUME_CONTROL = "VolumeControl";
 
     private static SettingsStore mInstance;
     private SharedPreferences mPreferences = null;
@@ -78,11 +79,10 @@ public class SettingsStore {
     private void loadPhones() {
         phoneNumbersCount = mPreferences.getInt(KEY_PHONE_COUNT, 0);
         phoneNumbers.clear();
-        for (int i = 0; i < phoneNumbersCount; i++)
-        {
-            String loadedNumber = mPreferences.getString(KEY_PHONE_NUMBER+i, "");
+        for (int i = 0; i < phoneNumbersCount; i++) {
+            String loadedNumber = mPreferences.getString(KEY_PHONE_NUMBER + i, "");
             if (loadedNumber != null && !loadedNumber.isEmpty())
-                phoneNumbers.add(mPreferences.getString(KEY_PHONE_NUMBER+i, ""));
+                phoneNumbers.add(mPreferences.getString(KEY_PHONE_NUMBER + i, ""));
         }
     }
 
@@ -122,5 +122,13 @@ public class SettingsStore {
 
     public boolean getResponseEnabled() {
         return mPreferences.getBoolean(KEY_RESPONSE_ENABLED, false);
+    }
+
+    public boolean getVolumeControlEnabled() {
+        return mPreferences.getBoolean(KEY_VOLUME_CONTROL, false);
+    }
+
+    public void setVolumeControlEnabled(boolean isChecked) {
+        mPreferences.edit().putBoolean(KEY_VOLUME_CONTROL, isChecked).apply();
     }
 }

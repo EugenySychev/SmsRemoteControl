@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
@@ -24,8 +25,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.sychev.smsremotecontrol.MainActivity;
 import com.sychev.smsremotecontrol.R;
+import com.sychev.smsremotecontrol.data.SettingsStore;
 
-public class SmsHandlingService extends Service  implements SmsReceiver.SmsHandler {
+public class SmsHandlingService extends Service implements SmsReceiver.SmsHandler {
 
     public static final int RELOAD_SETTINGS = 1;
     private static final String TAG = "SmsService";
@@ -43,6 +45,7 @@ public class SmsHandlingService extends Service  implements SmsReceiver.SmsHandl
             return SmsHandlingService.this;
         }
     }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -55,7 +58,12 @@ public class SmsHandlingService extends Service  implements SmsReceiver.SmsHandl
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        if (!SettingsStore.getInstance().isInitialized())
+            SettingsStore.getInstance().init(this);
+
         loadSettings();
+
         SmsReceiver receiver = new SmsReceiver();
         receiver.setSmsHandler(this);
         registerReceiver(receiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));

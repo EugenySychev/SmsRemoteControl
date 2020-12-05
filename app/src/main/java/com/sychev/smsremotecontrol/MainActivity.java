@@ -1,16 +1,10 @@
 package com.sychev.smsremotecontrol;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatEditText;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,21 +12,15 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.sychev.smsremotecontrol.data.SettingsStore;
 import com.sychev.smsremotecontrol.service.SmsHandlingService;
 import com.sychev.smsremotecontrol.view.ContactSelectionActivity;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -139,13 +127,23 @@ public class MainActivity extends AppCompatActivity {
                 SettingsStore.getInstance().setResponseEnabled(isChecked);
 
                 if (isChecked)
-                    checkPermissionSmsSending(Manifest.permission.SEND_SMS);
+                    checkPermissionManifest(Manifest.permission.SEND_SMS);
             }
         });
         sendResponseSwitch.setChecked(SettingsStore.getInstance().getResponseEnabled());
+
+        SwitchCompat volumeControlSwitch = findViewById(R.id.volumeControlSwitch);
+        volumeControlSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsStore.getInstance().setVolumeControlEnabled(isChecked);
+                checkPermissionManifest(Manifest.permission.ACCESS_NOTIFICATION_POLICY);
+            }
+        });
+        volumeControlSwitch.setChecked(SettingsStore.getInstance().getVolumeControlEnabled());
     }
 
-    private void checkPermissionSmsSending(String permission) {
+    private void checkPermissionManifest(String permission) {
         if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{permission},
                     MY_PERMISSIONS_REQUEST);
