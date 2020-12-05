@@ -10,6 +10,10 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.widget.Toast;
 
+import com.sychev.smsremotecontrol.data.SettingsStore;
+
+import java.util.Set;
+
 public class StartMyServiceAtBootReceiver extends BroadcastReceiver {
     Messenger messenger = null;
     boolean bound;
@@ -27,8 +31,10 @@ public class StartMyServiceAtBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Toast.makeText(context, "Received reboot, try to start service", Toast.LENGTH_LONG).show();
+        if (!SettingsStore.getInstance().isInitialized())
+            SettingsStore.getInstance().init(context);
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) &&
+                SettingsStore.getInstance().getServiceEnabling()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(new Intent(context, SmsHandlingService.class));
             } else {

@@ -5,6 +5,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.Manifest;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             SmsHandlingService.SmsServiceBinder binder = (SmsHandlingService.SmsServiceBinder) service;
             mService = binder.getService();
             if (!mService.getIsRunning() && mServiceShouldRun)
-                startForegroundService(new Intent(MainActivity.this, SmsHandlingService.class));
+                startService();
             mBound = true;
             Toast.makeText(MainActivity.this, "service connected", Toast.LENGTH_LONG).show();
 
@@ -144,10 +145,25 @@ public class MainActivity extends AppCompatActivity {
                 checkPermissionManifest(Manifest.permission.ACCESS_NOTIFICATION_POLICY);
                 if (mService != null)
                     mService.reloadSettings();
+                if (mService != null) {
+                    if (SettingsStore.getInstance().getServiceEnabling() && !mService.getIsRunning())
+                        startService();
+                    if (!SettingsStore.getInstance().getServiceEnabling() && mService.getIsRunning())
+                        stopService();
+                }
             }
         });
         volumeControlSwitch.setChecked(SettingsStore.getInstance().getVolumeControlEnabled());
 
+    }
+
+    private void startService() {
+        startForegroundService(new Intent(MainActivity.this, SmsHandlingService.class));
+    }
+
+    private void stopService() {
+        mService.onStop();
+        mService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
     }
 
     private void checkPermissionManifest(String permission) {

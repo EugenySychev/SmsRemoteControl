@@ -86,6 +86,10 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
         return START_STICKY;
     }
 
+    public void onStop() {
+        started = false;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
