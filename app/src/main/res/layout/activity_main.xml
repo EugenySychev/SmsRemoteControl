@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
         android:padding="@dimen/layout_padding"
-        android:animateLayoutChanges="true"
         tools:ignore="MissingConstraints">
 
         <androidx.appcompat.widget.SwitchCompat
@@ -28,31 +28,32 @@
             android:text="@string/showSelectContact" />
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/needPasswordSwitch"
             style="@style/SwitchTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/need_password"
-            android:id="@+id/needPasswordSwitch"/>
+            android:text="@string/need_password" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/etPasswordLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:passwordToggleEnabled="true"
-            android:layout_marginBottom="@dimen/login_spacing_bottom">
+            android:layout_marginBottom="@dimen/login_spacing_bottom"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/design_default_color_background"
                 android:hint="@string/fragment_login_password_hint"
-                android:inputType="textPassword"
-                android:background="@color/design_default_color_background"/>
+                android:inputType="textPassword" />
+
             <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/savePasswordButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/savePasswordButton"
-                android:text="@string/save_password"/>
+                android:text="@string/save_password" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.SwitchCompat
@@ -74,32 +75,39 @@
 
             <TextView
                 android:id="@+id/handleVolContrSwitchTitle"
-                android:textSize="@dimen/abc_text_size_subhead_material"
-                android:textColor="?android:textColorPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/process_volume_control" />
+                android:text="@string/process_volume_control"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/abc_text_size_subhead_material" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="11sp"
                 android:layout_below="@+id/handleVolContrSwitchTitle"
                 android:layout_toStartOf="@id/volumeControlSwitch"
-                android:text="@string/this_switch" />
+                android:id="@+id/descriptionVolumeSwitcher"
+                android:textSize="11sp" />
 
         </RelativeLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/check_service_state"
-            android:id="@+id/checkServiceStateButton" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/serviceStateTextView" />
+<!--        <androidx.appcompat.widget.AppCompatButton-->
+<!--            android:id="@+id/checkServiceStateButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/check_service_state" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/serviceStateTextView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+
     </LinearLayout>
 
+    <com.yandex.mobile.ads.AdView
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

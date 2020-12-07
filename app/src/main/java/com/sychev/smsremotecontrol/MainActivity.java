@@ -1,10 +1,5 @@
 package com.sychev.smsremotecontrol;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.SwitchCompat;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -15,18 +10,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.sychev.smsremotecontrol.data.SettingsStore;
 import com.sychev.smsremotecontrol.service.SmsHandlingService;
 import com.sychev.smsremotecontrol.view.ContactSelectionActivity;
+import com.yandex.mobile.ads.AdRequest;
+import com.yandex.mobile.ads.AdSize;
+import com.yandex.mobile.ads.AdView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,26 +42,27 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIF_POLICY_PERMISSIONS_REQUEST = 2;
     private SwitchCompat volumeControlSwitch;
     private SwitchCompat sendResponseSwitch;
+    private SwitchCompat switchFilterNumbers;
+    private static final String blockId = "R-M-692728-1";
+    private AudioManager audioManager;
 
     private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
+        public void onServiceConnected(ComponentName className, IBinder service) {
             SmsHandlingService.SmsServiceBinder binder = (SmsHandlingService.SmsServiceBinder) service;
             mService = binder.getService();
             if (!mService.getIsRunning() && mServiceShouldRun)
                 startService();
             mBound = true;
-            Toast.makeText(MainActivity.this, "service connected", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "service connected", Toast.LENGTH_LONG).show();
 
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
-            Toast.makeText(MainActivity.this, "service disconnected", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "service disconnected", Toast.LENGTH_LONG).show();
         }
     };
     ;
@@ -71,10 +75,25 @@ public class MainActivity extends AppCompatActivity {
         SettingsStore.getInstance().init(this);
         mServiceShouldRun = SettingsStore.getInstance().getServiceEnabling();
 
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        connectToService();
+        setupContactFilteSwitch();
+        setupPasswordInput();
+        setupCheckServiceStateButton();
+        setupResponseSwitch();
+        setupVolumeControlSwitch();
+        setupDescriptionVolumeSwitch();
+        setupYandexAds();
+    }
+
+    private void connectToService() {
         Intent intent = new Intent(this, SmsHandlingService.class);
         int flags = Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT;
         bindService(intent, connection, flags);
+    }
 
+    private void setupContactFilteSwitch() {
         AppCompatButton buttonFilterContactActivity = findViewById(R.id.showSelectContactButton);
         buttonFilterContactActivity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,18 +102,22 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        SwitchCompat switchFilterNumbers = findViewById(R.id.filterNumberSwitch);
+        switchFilterNumbers = findViewById(R.id.filterNumberSwitch);
         switchFilterNumbers.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 buttonFilterContactActivity.setVisibility(switchFilterNumbers.isChecked() ? View.VISIBLE : View.GONE);
                 SettingsStore.getInstance().setIsFilterByNumber(switchFilterNumbers.isChecked());
+
+                if (isChecked)
+                    checkPermissionManifest(Manifest.permission.READ_CONTACTS);
             }
         });
         switchFilterNumbers.setChecked(SettingsStore.getInstance().getIsFilterByNumber());
         buttonFilterContactActivity.setVisibility(switchFilterNumbers.isChecked() ? View.VISIBLE : View.GONE);
+    }
 
-
+    private void setupPasswordInput() {
         TextInputEditText passwordEdit = findViewById(R.id.passwordEdit);
         AppCompatButton savePasswordButton = findViewById(R.id.savePasswordButton);
         savePasswordButton.setOnClickListener(new View.OnClickListener() {
@@ -117,32 +140,24 @@ public class MainActivity extends AppCompatActivity {
 
         switchPasswordRequired.setChecked(SettingsStore.getInstance().getPasswordEnabled());
         passLayoutt.setVisibility(switchPasswordRequired.isChecked() ? View.VISIBLE : View.GONE);
+    }
 
-        TextView serviceStateTextView = findViewById(R.id.serviceStateTextView);
-        AppCompatButton button = findViewById(R.id.checkServiceStateButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mBound) {
-                    serviceStateTextView.setText("Service binded" + (mService.getIsRunning() ? " started" : " stoped"));
-                } else {
-                    serviceStateTextView.setText("Something goes wrong" + (mService.getIsRunning() ? " started" : " stoped"));
-                }
-            }
-        });
+    private void setupCheckServiceStateButton() {
+//        TextView serviceStateTextView = findViewById(R.id.serviceStateTextView);
+//        AppCompatButton button = findViewById(R.id.checkServiceStateButton);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (mBound) {
+//                    serviceStateTextView.setText("Service binded" + (mService.getIsRunning() ? " started" : " stoped"));
+//                } else {
+//                    serviceStateTextView.setText("Something goes wrong" + (mService.getIsRunning() ? " started" : " stoped"));
+//                }
+//            }
+//        });
+    }
 
-        sendResponseSwitch = findViewById(R.id.responseSwitch);
-        sendResponseSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SettingsStore.getInstance().setResponseEnabled(isChecked);
-
-                if (isChecked)
-                    checkPermissionManifest(Manifest.permission.SEND_SMS);
-            }
-        });
-        sendResponseSwitch.setChecked(SettingsStore.getInstance().getResponseEnabled());
-
+    private void setupVolumeControlSwitch() {
         volumeControlSwitch = findViewById(R.id.volumeControlSwitch);
         volumeControlSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -188,8 +203,54 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         volumeControlSwitch.setChecked(SettingsStore.getInstance().getVolumeControlEnabled());
+    }
 
+    private void setupYandexAds() {
+        //        YandexMetricaConfig config = YandexMetricaConfig.newConfigBuilder(API_key).build();
+//        // Initializing the AppMetrica SDK.
+//        YandexMetrica.activate(getApplicationContext(), config);
+//        // Automatic tracking of user activity.
+//        YandexMetrica.enableActivityAutoTracking(this);
+        AdView mAdView = (AdView) findViewById(R.id.ad_view);
+        mAdView.setBlockId(blockId);
+        mAdView.setAdSize(AdSize.stickySize(AdSize.FULL_WIDTH));
 
+        // Создание объекта таргетирования рекламы.
+        final AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Регистрация слушателя для отслеживания событий, происходящих в баннерной рекламе.
+//        mAdView.setAdEventListener(new AdEventListener.SimpleAdEventListener() {
+//            @Override
+//            public void onAdLoaded() {
+//            }
+//        });
+
+        // Загрузка объявления.
+        mAdView.loadAd(adRequest);
+    }
+
+    private void setupDescriptionVolumeSwitch() {
+        TextView volumeDescrView = findViewById(R.id.descriptionVolumeSwitcher);
+        String volumeDescriptionString = getString(R.string.this_switch);
+        volumeDescriptionString +=
+                audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) + getString(R.string.for_ring) +
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) + getString(R.string.for_music) +
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM) + getString(R.string.for_alarm);
+        volumeDescrView.setText(volumeDescriptionString);
+    }
+
+    private void setupResponseSwitch() {
+        sendResponseSwitch = findViewById(R.id.responseSwitch);
+        sendResponseSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsStore.getInstance().setResponseEnabled(isChecked);
+
+                if (isChecked)
+                    checkPermissionManifest(Manifest.permission.SEND_SMS);
+            }
+        });
+        sendResponseSwitch.setChecked(SettingsStore.getInstance().getResponseEnabled());
     }
 
     private void startService() {
@@ -227,17 +288,21 @@ public class MainActivity extends AppCompatActivity {
 
                     if (sendResponseSwitch.isChecked() && permissions[i].equals(Manifest.permission.SEND_SMS))
                         sendResponseSwitch.setChecked(false);
+                    if (sendResponseSwitch.isChecked() && permissions[i].equals(Manifest.permission.READ_CONTACTS))
+                        switchFilterNumbers.setChecked(false);
 
                 }
             }
-
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(connection);
-        mBound = false;
+        if (mBound) {
+            unbindService(connection);
+            mBound = false;
+        }
+
     }
 }
