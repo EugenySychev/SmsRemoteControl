@@ -1,0 +1,14 @@
+{
+	"client":{
+		"appType":"1",
+		"cp_id":"260007000000532757",
+		"product_id":"736430079244731211",
+		"client_id":"512504392428029120",
+		"client_secret":"1A5D6F3F63FAC9F014ABD5582C2A0199A4EFB72AF39453DF7A2D18DF0180AEC7",
+		"project_id":"736430079244731211",
+		"app_id":"103439369",
+		"api_key":"CgB6e3x9gg2Ey2ksLrcLAuaLJQY/hPt3HgxIuvssw4NNqMNKgcOkkduAFyAykLKB+oGhpFwj6jy9c3j4473Gsx2v",
+		"package_name":"com.sychev.smsremotecontrol"
+	},
+	"configuration_version":"1.0"
+}
