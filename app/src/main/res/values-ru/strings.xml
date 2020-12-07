@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmsRemoteControl</string>
+    <string name="filterNumbers">Фильтровать по номеру телефона</string>
+    <string name="showSelectContact">Показать/выбрать контакты</string>
+    <string name="need_password">Защита паролем</string>
+    <string name="password">пароль</string>
+    <string name="this_switch">"Этот переключатель включает управление громкостью в формате 'setvolume media/ring/alarm ##', где ## - номер от 0 до "</string>
+    <string name="process_volume_control">Управление громкостью</string>
+    <string name="send_response_status">Отправлять ответ</string>
+    <string name="check_service_state">Проверить статус сервиса</string>
+    <string name="increase">Добавить</string>
+    <string name="fragment_login_password_hint">Введите пароль</string>
+    <string name="save_password">Сохранить пароль</string>
+    <string name="notification_service_started">Сервис удаленного управления запущен</string>
+    <string name="alert_notification_policy">Для данной опции необходим доступ к управлению режимом \"не беспокоить\". Включите для Sms Remote Control на следующем экране.</string>
+    <string name="for_ring">"для мелодии вызова "</string>
+    <string name="for_music">" для музыки "</string>
+    <string name="for_alarm">" для будильника "</string>
+</resources>

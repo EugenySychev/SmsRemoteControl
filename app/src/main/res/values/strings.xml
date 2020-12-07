@@ -11,10 +11,10 @@
     <string name="increase">Add</string>
     <string name="fragment_login_password_hint">Enter password</string>
     <string name="save_password">Save password</string>
-    <string name="notification_title">Sms Remote Controller</string>
+    <string name="notification_title" translatable="false">Sms Remote Controller</string>
     <string name="notification_service_started">Service remote controller started</string>
     <string name="alert_notification_policy">In this case we have to access permission for switch off DND mode. Please, switch on SMS Remote Control application on the next srceen</string>
-    <string name="banner_id">ca-app-pub-9366467483527776/3807204292</string>
+    <string name="banner_id" translatable="false">ca-app-pub-9366467483527776/3807204292</string>
     <string name="for_ring">" for ringer "</string>
     <string name="for_music">" for music "</string>
     <string name="for_alarm">" for alarm "</string>
