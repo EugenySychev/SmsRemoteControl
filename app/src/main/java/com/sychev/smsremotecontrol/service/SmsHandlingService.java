@@ -5,28 +5,25 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.provider.Telephony;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.sychev.smsremotecontrol.MainActivity;
 import com.sychev.smsremotecontrol.R;
 import com.sychev.smsremotecontrol.data.SettingsStore;
+
+import java.util.HashMap;
 
 public class SmsHandlingService extends Service implements SmsReceiver.SmsHandler {
 
@@ -39,6 +36,46 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
     private boolean started = false;
     private SmsReceiver smsReceiver;
     private final IBinder mBinder = new SmsServiceBinder();
+
+    private enum Result {
+        OK("OK", 0),
+        INCORRECT_COMMAND("Wrong command", 1),
+        INCORRECT_PASSWORD("Incorrect password", 2),
+        INCORRECT_ARGUMENTS("Incorrect argument", 3),
+        GENERAL_FAILURE("General failure", 4),
+        INCORRECT_USER("Wrong user", 5);
+
+        private static final HashMap<String, Result> by_message = new HashMap<String, Result>();
+        private static final HashMap<Integer, Result> by_value = new HashMap<Integer, Result>();
+
+        static {
+            for (Result res : values()) {
+                by_message.put(res.mess, res);
+                by_value.put(res.value, res);
+            }
+        }
+
+        public final String mess;
+        public final int value;
+
+        Result(String message, int val) {
+            mess = message;
+            value = val;
+        }
+
+        public static Result valueOfVal(int value) {
+            return by_value.get(value);
+        }
+
+        public static Result valueOfString(String str) {
+            return by_message.get(str);
+        }
+
+        @Override
+        public String toString() {
+            return this.mess;
+        }
+    }
 
     public boolean getIsRunning() {
         return started;
@@ -110,50 +147,83 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
 
     @Override
     public void processIncomingSms(String number, String sms) {
-        if (checkPasswordNeeded(sms) && checkFilterNumber(number)) {
-            String[] strings = sms.split(" ");
-            int startInd = SettingsStore.getInstance().getPasswordEnabled() ? 1 : 0;
-            if (strings.length == NUMBER_WORD_SMS_COMMAND + startInd) {
-                String command = strings[startInd]; // dropped password if needed
-                String type = strings[startInd + 1];
-                int value = Integer.parseInt(strings[startInd + 2]);
-                if (SettingsStore.getInstance().getVolumeControlEnabled() &&
-                        command.equalsIgnoreCase(SET_VOLUME_COMMAND) &&
-                        volumeAdapter != null) {
-                    if (type.equalsIgnoreCase("ring") ||
-                            type.equalsIgnoreCase("media") ||
-                            type.equalsIgnoreCase("alarm")) {
-                        volumeAdapter.setVolume(value, type);
-//                        Toast.makeText(this, "Neeed set volume " +
-//                                type + " to " + value, Toast.LENGTH_LONG).show();
+        Result res = Result.INCORRECT_USER;
+        res = checkPasswordNeeded(sms);
+        if (res == Result.OK) {
+            res = checkFilterNumber(number);
+            if (res == Result.OK) {
+                String[] strings = sms.split(" ");
+                int startInd = SettingsStore.getInstance().getPasswordEnabled() ? 1 : 0;
+                if (strings.length == NUMBER_WORD_SMS_COMMAND + startInd) {
+                    String command = strings[startInd]; // dropped password if needed
+                    String type = strings[startInd + 1];
+                    int value = Integer.parseInt(strings[startInd + 2]);
+                    if (SettingsStore.getInstance().getVolumeControlEnabled() &&
+                            command.equalsIgnoreCase(SET_VOLUME_COMMAND) &&
+                            volumeAdapter != null) {
 
-
+                        if (type.equalsIgnoreCase("ring") ||
+                                type.equalsIgnoreCase("media") ||
+                                type.equalsIgnoreCase("alarm")) {
+                            try {
+                                volumeAdapter.setVolume(value, type);
+                                res = Result.OK;
+                            } catch (Exception e) {
+                                res = Result.GENERAL_FAILURE;
+                            }
+                        } else {
+                            res = Result.INCORRECT_ARGUMENTS;
+                        }
+                    } else {
+                        res = Result.INCORRECT_COMMAND;
                     }
-
+                } else {
+                    res = Result.INCORRECT_COMMAND;
                 }
             }
         }
 
+        if (SettingsStore.getInstance().getResponseEnabled()) {
+            sendResponse(res, number);
+        }
     }
 
-    private boolean checkFilterNumber(String number) {
+    private void sendResponse(Result res, String number) {
+        if (res != Result.INCORRECT_USER) {
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                String msg = res.toString();
+                smsManager.sendTextMessage(number, null, msg, null, null);
+                Toast.makeText(getApplicationContext(), "Message Sent",
+                        Toast.LENGTH_LONG).show();
+            } catch (Exception ex) {
+                Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+                        Toast.LENGTH_LONG).show();
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private Result checkFilterNumber(String number) {
         if (SettingsStore.getInstance().getIsFilterByNumber()) {
             for (String numberInList : SettingsStore.getInstance().getPhoneNumbers()) {
                 if (PhoneNumberUtils.compare(number, numberInList)) {
-                    return true;
+                    return Result.OK;
                 }
             }
-            return false;
+            return Result.INCORRECT_USER;
         }
-        return true;
+        return Result.OK;
     }
 
-    private boolean checkPasswordNeeded(String sms) {
+    private Result checkPasswordNeeded(String sms) {
         if (SettingsStore.getInstance().getPasswordEnabled()) {
             String pass = SettingsStore.getInstance().getPassword();
-            return sms.substring(0, pass.length()).equals(pass);
+            if (sms.substring(0, pass.length()).equals(pass))
+                return Result.OK;
+            return Result.INCORRECT_PASSWORD;
         }
-        return true;
+        return Result.OK;
     }
 
     private void createNotificationChannel() {
