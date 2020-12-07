@@ -26,8 +26,14 @@ public class VolumeAdapter {
             mediaType = AudioManager.STREAM_MUSIC;
         else if (type.equalsIgnoreCase("alarm"))
             mediaType = AudioManager.STREAM_ALARM;
+        if (volume > 0)
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
 
         audioManager.setStreamVolume(mediaType, volume, audioManager.getStreamMaxVolume(mediaType));
+
+        Log.d("MEDIA", "Max volumes is " + audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) + " "
+                + audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) + " "
+                + audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
     }
 
     public void playRingtone() {

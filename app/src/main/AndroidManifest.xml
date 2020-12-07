@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
@@ -26,16 +26,19 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.ContactSelectionActivity" />
+
         <receiver
             android:name=".service.StartMyServiceAtBootReceiver"
+            android:exported="true"
             android:label="StartMyServiceAtBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.SmsHandlingService"
-            android:enabled="true"/>
+            android:label="SmsHandlingService" />
     </application>
 
 </manifest>

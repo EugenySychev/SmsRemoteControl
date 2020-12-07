@@ -1,13 +1,17 @@
 package com.sychev.smsremotecontrol;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -31,7 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST = 1;
     private SmsHandlingService mService;
     private boolean mBound;
-
+    private boolean mServiceShouldRun;
+    private static final int NOTIF_POLICY_PERMISSIONS_REQUEST = 2;
+    private SwitchCompat volumeControlSwitch;
     private SwitchCompat sendResponseSwitch;
 
     private final ServiceConnection connection = new ServiceConnection() {
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "service disconnected", Toast.LENGTH_LONG).show();
         }
     };
-    private boolean mServiceShouldRun;
+    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,12 +143,40 @@ public class MainActivity extends AppCompatActivity {
         });
         sendResponseSwitch.setChecked(SettingsStore.getInstance().getResponseEnabled());
 
-        SwitchCompat volumeControlSwitch = findViewById(R.id.volumeControlSwitch);
+        volumeControlSwitch = findViewById(R.id.volumeControlSwitch);
         volumeControlSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsStore.getInstance().setVolumeControlEnabled(isChecked);
-                checkPermissionManifest(Manifest.permission.ACCESS_NOTIFICATION_POLICY);
+
+                if (isChecked) {
+                    checkPermissionManifest(Manifest.permission.ACCESS_NOTIFICATION_POLICY);
+
+                    checkPermissionManifest(Manifest.permission.RECEIVE_SMS);
+                    checkPermissionManifest(Manifest.permission.READ_SMS);
+
+                    NotificationManager n = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (!n.isNotificationPolicyAccessGranted()) {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setMessage(R.string.alert_notification_policy)
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent acNPIntent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                                        MainActivity.this.startActivityForResult(acNPIntent, NOTIF_POLICY_PERMISSIONS_REQUEST);
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                })
+                                .setCancelable(true)
+                                .create()
+                                .show();
+                    }
+                }
                 if (mService != null)
                     mService.reloadSettings();
                 if (mService != null) {
@@ -155,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         });
         volumeControlSwitch.setChecked(SettingsStore.getInstance().getVolumeControlEnabled());
 
+
     }
 
     private void startService() {
@@ -164,6 +199,15 @@ public class MainActivity extends AppCompatActivity {
     private void stopService() {
         mService.onStop();
         mService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == NOTIF_POLICY_PERMISSIONS_REQUEST) {
+            if (!((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).isNotificationPolicyAccessGranted() && volumeControlSwitch != null)
+                volumeControlSwitch.setChecked(false);
+        }
     }
 
     private void checkPermissionManifest(String permission) {

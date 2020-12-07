@@ -4,7 +4,7 @@
     <string name="showSelectContact">Show/select contact</string>
     <string name="need_password">Need password</string>
     <string name="password">password</string>
-    <string name="this_switch">This switch enabling of processing volume controll command by setvolume ### media/ring, where is ### is a number from 0 to 100 of volume.</string>
+    <string name="this_switch">This switch enabling of processing volume controll command by setvolume media/ring/alarm ###, where is ### is a number from 0 to 10 of volume.</string>
     <string name="process_volume_control">Process volume control</string>
     <string name="send_response_status">Send response status</string>
     <string name="check_service_state">Check service state</string>
@@ -13,4 +13,5 @@
     <string name="save_password">Save password</string>
     <string name="notification_title">Sms Remote Controller</string>
     <string name="notification_service_started">Service remote controller started</string>
+    <string name="alert_notification_policy">In this case we have to access permission for switch off DND mode. Please, switch on SMS Remote Control application on the next srceen</string>
 </resources>

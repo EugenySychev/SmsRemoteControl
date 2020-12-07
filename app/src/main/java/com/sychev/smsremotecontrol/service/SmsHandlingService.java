@@ -110,26 +110,29 @@ public class SmsHandlingService extends Service implements SmsReceiver.SmsHandle
 
     @Override
     public void processIncomingSms(String number, String sms) {
-        Toast.makeText(this, "Received sms ", Toast.LENGTH_LONG).show();
-//        if (checkPasswordNeeded(sms) && checkFilterNumber(number)) {
-//            String[] strings = sms.split(" ");
-//            int startInd = SettingsStore.getInstance().getPasswordEnabled() ? 1 : 0;
-//            if (strings.length == NUMBER_WORD_SMS_COMMAND + startInd) {
-//                String command = strings[startInd]; // dropped password if needed
-//                String type = strings[startInd + 1];
-//                int value = Integer.parseInt(strings[startInd + 2]);
-//                if (SettingsStore.getInstance().getVolumeControlEnabled() &&
-//                        command.equalsIgnoreCase(SET_VOLUME_COMMAND) &&
-//                        volumeAdapter != null) {
-//                    if (type.equalsIgnoreCase("ring") ||
-//                            type.equalsIgnoreCase("media") ||
-//                            type.equalsIgnoreCase("alarm")) {
-//                        volumeAdapter.setVolume(value, type);
-//                    }
-//
-//                }
-//            }
-//        }
+        if (checkPasswordNeeded(sms) && checkFilterNumber(number)) {
+            String[] strings = sms.split(" ");
+            int startInd = SettingsStore.getInstance().getPasswordEnabled() ? 1 : 0;
+            if (strings.length == NUMBER_WORD_SMS_COMMAND + startInd) {
+                String command = strings[startInd]; // dropped password if needed
+                String type = strings[startInd + 1];
+                int value = Integer.parseInt(strings[startInd + 2]);
+                if (SettingsStore.getInstance().getVolumeControlEnabled() &&
+                        command.equalsIgnoreCase(SET_VOLUME_COMMAND) &&
+                        volumeAdapter != null) {
+                    if (type.equalsIgnoreCase("ring") ||
+                            type.equalsIgnoreCase("media") ||
+                            type.equalsIgnoreCase("alarm")) {
+                        volumeAdapter.setVolume(value, type);
+//                        Toast.makeText(this, "Neeed set volume " +
+//                                type + " to " + value, Toast.LENGTH_LONG).show();
+
+
+                    }
+
+                }
+            }
+        }
 
     }
 
